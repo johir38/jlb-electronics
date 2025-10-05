@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JLB ইলেকট্রনিক্স</title>
+<style>
+body {
+    font-family: 'Noto Sans Bengali', sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    padding: 0;
+}
+header {
+    background: linear-gradient(135deg, #007bff, #00bcd4);
+    color: white;
+    text-align: center;
+    padding: 15px 0;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+header img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: white;
+    padding: 4px;
+    box-shadow: 0 0 6px rgba(255,255,255,0.4);
+}
+.container {
+    width: 90%;
+    max-width: 700px;
+    margin: 20px auto;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+form input, form textarea {
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+form textarea {
+    resize: vertical;
+    height: 50px;
+}
+button {
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 15px;
+}
+.add-btn { background: #007bff; }
+.clear-btn { background: #dc3545; }
+.product {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+    background: #fafafa;
+}
+.product img {
+    width: 100%;
+    max-height: 250px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+.actions {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+.actions button {
+    flex: 1;
+}
+.share-btn { background: #28a745; }
+.delete-btn { background: #dc3545; }
+.edit-btn { background: #ffc107; color: black; }
+.chat-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 22px;
+    cursor: pointer;
+}
+#chatBox {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    left: 20px;
+    width: 280px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+#chatHeader {
+    background: #007bff;
+    color: white;
+    padding: 8px;
+    text-align: center;
+}
+#chatMessages {
+    height: 150px;
+    overflow-y: auto;
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+#chatInput {
+    display: flex;
+}
+#chatInput input {
+    flex: 1;
+    padding: 6px;
+    border: none;
+    border-top: 1px solid #ddd;
+}
+#chatInput button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+}
+.whatsapp-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #25D366;
+    color: white;
+    border-radius: 50%;
+    width: 55px;
+    height: 55px;
+    font-size: 28px;
+    text-align: center;
+    line-height: 55px;
+    text-decoration: none;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="logo.png" alt="logo">
+  JLB ইলেকট্রনিক্স
+</header>
+
+<div class="container">
+  <h3>নতুন পণ্য যোগ করুন</h3>
+  <form id="productForm">
+    <input type="text" id="name" placeholder="পণ্যের নাম" required>
+    <input type="number" id="price" placeholder="দাম (৳)" required>
+    <input type="number" id="stock" placeholder="স্টক (পরিমাণ)" required>
+    <textarea id="desc" placeholder="পণ্যের বর্ণনা"></textarea>
+    <input type="file" id="image" accept="image/*">
+    <div style="display:flex; gap:5px;">
+      <button type="submit" class="add-btn">পণ্য যোগ করুন</button>
+      <button type="button" class="clear-btn" onclick="clearAll()">সমস্ত পণ্য মুছে ফেলুন</button>
+    </div>
+  </form>
+
+  <h3>পণ্যের তালিকা</h3>
+  <div id="productList"></div>
+</div>
+
+<button class="chat-btn" onclick="toggleChat()">💬</button>
+
+<div id="chatBox">
+  <div id="chatHeader">চ্যাট</div>
+  <div id="chatMessages"></div>
+  <div id="chatInput">
+    <input type="text" id="chatText" placeholder="বার্তা লিখুন...">
+    <button onclick="sendMessage()">পাঠান</button>
+  </div>
+</div>
+
+<a class="whatsapp-btn" href="https://wa.me/8801703283838" target="_blank">📱</a>
+
+<script>
+const productForm = document.getElementById("productForm");
+const productList = document.getElementById("productList");
+
+productForm.addEventListener("submit", function(e){
+  e.preventDefault();
+  const name = document.getElementById("name").value;
+  const price = document.getElementById("price").value;
+  const stock = document.getElementById("stock").value;
+  const desc = document.getElementById("desc").value;
+  const imageFile = document.getElementById("image").files[0];
+  const reader = new FileReader();
+  reader.onload = function(){
+    const product = document.createElement("div");
+    product.classList.add("product");
+    product.innerHTML = `
+      <img src="${reader.result}" alt="product">
+      <h4>${name}</h4>
+      <p>💰 দাম: <span class="price">${price}</span> ৳</p>
+      <p>📦 স্টক: <span class="stock">${stock}</span></p>
+      <p>${desc}</p>
+      <div class="actions">
+        <button class="edit-btn" onclick="editPrice(this)">দাম পরিবর্তন</button>
+        <button class="edit-btn" onclick="editStock(this)">স্টক পরিবর্তন</button>
+        <button class="share-btn" onclick="shareProduct('${name}','${price}','${stock}','${desc}')">শেয়ার করুন</button>
+        <button class="delete-btn" onclick="this.parentElement.parentElement.remove()">ডিলেট</button>
+      </div>
+    `;
+    productList.appendChild(product);
+    productForm.reset();
+  }
+  if(imageFile){ reader.readAsDataURL(imageFile); }
+});
+
+function shareProduct(name, price, stock, desc){
+  const text = `📦 পণ্যের নাম: ${name}
+💰 দাম: ${price}৳
+📦 স্টক: ${stock}
+📝 বর্ণনা: ${desc}
+📍 JLB ইলেকট্রনিক্স`;
+  if(navigator.share){ navigator.share({ title: name, text: text, url: window.location.href }); }
+  else{ navigator.clipboard.writeText(text); alert("শেয়ার সাপোর্ট নেই! টেক্সট কপি করা হয়েছে ✅"); }
+}
+
+function editPrice(btn){
+  const product = btn.closest(".product");
+  const priceSpan = product.querySelector(".price");
+  const newPrice = prompt("নতুন দাম লিখুন:", priceSpan.textContent);
+  if(newPrice && !isNaN(newPrice)){ priceSpan.textContent = newPrice; alert("দাম সফলভাবে পরিবর্তন হয়েছে!"); }
+}
+
+function editStock(btn){
+  const product = btn.closest(".product");
+  const stockSpan = product.querySelector(".stock");
+  const newStock = prompt("নতুন স্টক পরিমাণ লিখুন:", stockSpan.textContent);
+  if(newStock && !isNaN(newStock)){ stockSpan.textContent = newStock; alert("স্টক সফলভাবে পরিবর্তন হয়েছে!"); }
+}
+
+function clearAll(){ if(confirm("আপনি কি নিশ্চিত সব পণ্য মুছে ফেলতে চান?")){ productList.innerHTML = ""; } }
+
+function toggleChat(){ const box = document.getElementById("chatBox"); box.style.display = (box.style.display === "block") ? "none" : "block"; }
+function sendMessage(){ const msgBox = document.getElementById("chatMessages"); const text = document.getElementById("chatText").value.trim(); if(text){ const msg = document.createElement("div"); msg.textContent = text; msgBox.appendChild(msg); document.getElementById("chatText").value = ""; msgBox.scrollTop = msgBox.scrollHeight; } }
+</script>
+
+</body>
+</html>
